@@ -30,9 +30,8 @@ export const pollBatchResults = async (tokens) => {
       (r) => r.status.id !== 1 && r.status.id !== 2
     );
 
-    if (isAllDone) {
-      return results;
-    }
+    if (isAllDone) return results;
+
     await sleep(1000);
   }
 };

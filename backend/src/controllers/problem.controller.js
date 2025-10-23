@@ -6,6 +6,10 @@ import {
 } from "../libs/judge0.lib.js";
 
 export const createProblem = async (req, res) => {
+  console.log("Inside createProblem");
+  console.log("req.user:", req.user);
+  console.log("req.body keys:", Object.keys(req.body));
+
   const {
     title,
     description,
@@ -18,9 +22,15 @@ export const createProblem = async (req, res) => {
     referenceSolutions,
   } = req.body;
 
+  if (req.user.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only admins can create problems" });
+  }
+
   try {
     for (const [language, solutionCode] of Object.entries(referenceSolutions)) {
       const languageId = getJudge0LanguageId(language);
+
+      console.log("Language:", language, "ID:", languageId);
 
       if (!languageId) {
         return res
@@ -28,12 +38,11 @@ export const createProblem = async (req, res) => {
           .json({ error: `Language ${language} is not supported` });
       }
 
-      //
       const submissions = testcases.map(({ input, output }) => ({
         source_code: solutionCode,
         language_id: languageId,
         stdin: input,
-        // expected_output: output,
+        expected_output: output,
       }));
 
       const submissionResults = await submitBatch(submissions);
@@ -54,6 +63,7 @@ export const createProblem = async (req, res) => {
         }
       }
     }
+
     const newProblem = await db.problem.create({
       data: {
         title,
@@ -69,13 +79,9 @@ export const createProblem = async (req, res) => {
       },
     });
 
-    return res.status(201).json({
-      success: true,
-      message: "Message Created Successfully",
-      problem: newProblem,
-    });
+    return res.status(201).json(newProblem);
   } catch (error) {
-    console.log(error);
+    console.log("The eroor", error);
     return res.status(500).json({
       error: "Error While Creating Problem",
     });
