@@ -7,20 +7,18 @@ import {
   updateProblem,
   deleteProblem,
   getAllProblemsSolvedByUser,
+  runProblemCode, // 👈 import this new controller
 } from "../controllers/problem.controller.js";
 
 const problemRoutes = express.Router();
 
+// --------------------- Admin Routes ---------------------
 problemRoutes.post(
   "/create-problem",
   authMiddleware,
   checkAdmin,
   createProblem
 );
-
-problemRoutes.get("/get-all-problems", authMiddleware, getAllProblems);
-
-problemRoutes.get("/get-problem/:id", authMiddleware, getProblemById);
 
 problemRoutes.put(
   "/update-problem/:id",
@@ -36,9 +34,17 @@ problemRoutes.delete(
   deleteProblem
 );
 
+// --------------------- User Routes ---------------------
+problemRoutes.get("/get-all-problems", authMiddleware, getAllProblems);
+problemRoutes.get("/get-problem/:id", authMiddleware, getProblemById);
 problemRoutes.get(
   "/get-solved-problems",
   authMiddleware,
   getAllProblemsSolvedByUser
 );
+
+// --------------------- Judge0 Execution ---------------------
+// anyone logged in can run code
+problemRoutes.post("/run", authMiddleware, runProblemCode);
+
 export default problemRoutes;
