@@ -215,7 +215,38 @@ export const deleteProblem = async (req, res) => {
   }
 };
 
-export const getAllProblemsSolvedByUser = (req, res) => {};
+export const getAllProblemsSolvedByUser = async (req, res) => {
+  try {
+    const problems = await prisma.problem.findMany({
+      where: {
+        solvedBy: {
+          some: {
+            userId: req.user.id,
+          },
+        },
+      },
+      include: {
+        solvedBy: {
+          where: {
+            userId: req.user.id,
+          },
+        },
+      },
+    });
+    res.status(200).json({
+      success: true,
+      message: "Problems solved by user fetched successfully",
+      data: problems,
+    });
+  } catch (error) {
+    console.error("Error fetching problems solved by user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching problems solved by user",
+      error: error.message,
+    });
+  }
+};
 
 export const runProblemCode = async (req, res) => {
   try {
