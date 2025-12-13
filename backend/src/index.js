@@ -14,15 +14,15 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 app.use(cookieParser());
 
-// Allow CORS (important for frontend requests)
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*",
+    origin: "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
