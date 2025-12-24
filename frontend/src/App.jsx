@@ -7,6 +7,8 @@ import SignUpPage from './page/SignUpPage.jsx';
 import { useAuthStore } from './store/useAuthStore.js';
 import {Loader } from 'lucide-react';
 import Layout from './layout/layout.jsx';
+import AdminRoute from './components/AdminRoute.jsx';
+import AddProblem from './page/AddProblem.jsx';
 
 function App() {
 
