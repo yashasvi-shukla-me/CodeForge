@@ -1,4 +1,6 @@
-## CodeForge
+![CodeForge Preview](assets/CodeForge.png)
+
+## ⚖️ CodeForge
 
 CodeForge is a full-stack coding practice and online judge platform inspired by LeetCode, where users can add, run, and solve programming problems with real-time code execution.
 It uses the Judge0 API to compile and run code securely across multiple languages.
@@ -11,19 +13,19 @@ It uses the Judge0 API to compile and run code securely across multiple language
 - User authentication and profiles
 - Problem solving and practice interface
 - Frontend and backend separated architecture
-  
+
 ### Tech Stack
 
 **Frontend**
-React, 
-Tailwind CSS, 
+React,
+Tailwind CSS,
 Axios
 
 **Backend**
-Node.js, 
-Express, 
-MongoDB, 
-Judge0 API, 
+Node.js,
+Express,
+MongoDB,
+Judge0 API,
 JWT Authentication
 
 ### Project Goal
@@ -31,8 +33,8 @@ JWT Authentication
 To build a scalable and production-oriented online judge platform while learning full-stack system design and backend engineering.
 Setup
 
-
 ### Clone the repo
+
 git clone https://github.com/<your-username>/CodeForge.git
 
 cd CodeForge
