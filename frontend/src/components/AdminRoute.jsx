@@ -1,22 +1,19 @@
-import React from 'react'
-import { Outlet, Navigate } from 'react-router-dom';
-import { useAuthStore } from '../store/useAuthStore.js';
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
+import { Loader } from "lucide-react";
 
 const AdminRoute = () => {
+    const {authUser , isCheckingAuth} = useAuthStore()
 
-    const {authStore, isCheckingAuth} = useAuthStore();
-
-    if (isCheckingAuth) {
-        return <div className='flex items-center justify-center h-screen'><Loader className='size-10 animate-spin' /></div>
+     if (isCheckingAuth) {
+      return <div className="flex items-center justify-center h-screen"><Loader className="size-10 animate-spin" /></div>;
+    }
+  
+    if(!authUser || authUser.role !== "ADMIN"){
+        return <Navigate to="/"/>;
     }
 
-    if(!authStore || authStore.role !== 'ADMIN') {
-        return <Navigate to='/' />
-    }
-
-  return (
-    <Outlet />
-  )
+  return <Outlet/>
 }
 
 export default AdminRoute
