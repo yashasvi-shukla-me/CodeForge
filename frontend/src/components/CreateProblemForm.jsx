@@ -513,7 +513,7 @@ const CreateProblemForm = () => {
 
   const [sampleType, setSampleType] = useState("DP");
 
-  const navigate = useNavigate();
+  const navigation = useNavigate();
 
   const {register, control, handleSubmit, reset, formState: {errors}} = useForm({
     resolver: zodResolver(problemSchema),
@@ -561,7 +561,18 @@ const CreateProblemForm = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (value) => {
-    console.log("Form Values:", value);
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.post('/problems/create-problem', value);
+      console.log(res.data);
+      toast.success(res.data.message || "Problem created successfully!");
+      navigation("/")
+    } catch (error) {
+      console.error(error);
+      toast.error("Error creating problem. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const loadSampleData=()=>{
