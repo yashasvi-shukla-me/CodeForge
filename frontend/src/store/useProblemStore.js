@@ -15,7 +15,7 @@ export const useProblemStore = create((set) => ({
 
       const res = await axiosInstance.get("/problems/get-all-problems");
 
-      set({ problems: res.data });
+      set({ problems: res.data.data });
     } catch (error) {
       console.log("Error fetching problems:", error);
       toast.error("Failed to fetch problems.");
