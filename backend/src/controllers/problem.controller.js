@@ -65,7 +65,15 @@ export const createProblem = async (req, res) => {
 
 export const getAllProblems = async (req, res) => {
   try {
-    const problems = await prisma.problem.findMany();
+    const problems = await prisma.problem.findMany({
+      include: {
+        solvedBy: {
+          where: {
+            userId: req.user.id,
+          },
+        },
+      },
+    });
 
     if (problems.length === 0) {
       return res.status(404).json({
