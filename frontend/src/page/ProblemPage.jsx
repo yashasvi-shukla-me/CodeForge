@@ -27,7 +27,7 @@ const ProblemPage = () => {
 
   const [code, setCode] = useState("");
   const [activeTab, setActiveTab] = useState("description");
-  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [selectedLanguage, setSelectedLanguage] = useState("JAVASCRIPT");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [testcases, setTestCases] = useState([]);
 
@@ -277,8 +277,9 @@ const ProblemPage = () => {
                 </button>
               </div>
 
-              <div className="h-[600px] w-full">
+              <div className="h-150 w-full">
                 <Editor
+                  key={`${problem?.id}-${selectedLanguage}`}
                   height="100%"
                   language={selectedLanguage.toLowerCase()}
                   theme="vs-dark"
