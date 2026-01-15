@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 
 import { useProblemStore } from "../store/useProblemStore.js";
+import { useExecutionStore } from "../store/useExecutionStore.js";
+import { getLanguageId } from "../lib/lang.js";
+import SubmissionResults from "../components/Submission.jsx";
 
 const ProblemPage = () => {
   const { id } = useParams();
@@ -30,6 +33,8 @@ const ProblemPage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("JAVASCRIPT");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [testcases, setTestCases] = useState([]);
+
+  const { executeCode, isExecuting, submission } = useExecutionStore();
 
   const submissionCount = 10;
 
@@ -66,7 +71,6 @@ const ProblemPage = () => {
     );
   }
 
-  const submission = false;
   const renderTabContent = () => {
     switch (activeTab) {
       case "description":
@@ -163,6 +167,18 @@ const ProblemPage = () => {
         );
       default:
         return null;
+    }
+  };
+
+  const handleRunCode = (e) => {
+    e.preventDefault();
+    try {
+      const language_id = getLanguageId(selectedLanguage);
+      const stdin = problem.testcases.map((tc) => tc.input);
+      const expected_outputs = problem.testcases.map((tc) => tc.output);
+      executeCode(code, language_id, stdin, expected_outputs, id);
+    } catch (error) {
+      console.error("Error running code:", error);
     }
   };
 
@@ -300,10 +316,13 @@ const ProblemPage = () => {
               <div className="p-4 border-t border-base-300 bg-base-200">
                 <div className="flex justify-between items-center">
                   <button
-                    className={`btn btn-primary gap-2 `}
-                    onClick={() => {}}
+                    className={`btn btn-primary gap-2 ${
+                      isExecuting ? "loading" : ""
+                    }`}
+                    onClick={handleRunCode}
+                    disabled={isExecuting}
                   >
-                    <Play className="w-4 h-4" />
+                    {!isExecuting && <Play className="w-4 h-4" />}
                     Run Code
                   </button>
                   <button className="btn btn-success gap-2">
@@ -319,7 +338,7 @@ const ProblemPage = () => {
       <div className="card bg-base-100 shadow-xl mt-6">
         <div className="card-body">
           {submission ? (
-            <h1>Submission data</h1>
+            <SubmissionResults submission={submission} />
           ) : (
             <>
               <div className="flex items-center justify-between mb-6">
