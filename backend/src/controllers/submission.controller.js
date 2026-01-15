@@ -1,3 +1,5 @@
+import { db } from "../libs/db.js";
+
 export const getAllSubmissions = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -48,25 +50,52 @@ export const getSubmissionForProblem = async (req, res) => {
   }
 };
 
+// export const getAllTheSubmissionsForProblem = async (req, res) => {
+//   try {
+//     const problemId = req.params.problemId;
+
+//     const submission = await db.submission.count({
+//       where: {
+//         problemId: problemId,
+//       },
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Submisisons Fetched Successfully",
+//       count: submission,
+//     });
+//   } catch (error) {
+//     console.error("Fetch Submissions Error", error);
+//     res.status(500).json({
+//       error: "Fialed to fetch submissions",
+//     });
+//   }
+// };
+
 export const getAllTheSubmissionsForProblem = async (req, res) => {
   try {
-    const problemId = req.params.problemId;
+    console.log("PARAMS:", req.params);
+    console.log("USER:", req.user);
+    const { problemId } = req.params;
 
-    const submission = await db.submission.count({
-      where: {
-        problemId: problemId,
-      },
+    if (!problemId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Problem ID required" });
+    }
+
+    const count = await db.submission.count({
+      where: { problemId: String(problemId) },
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "Submisisons Fetched Successfully",
-      count: submission,
+      message: "Submissions fetched successfully",
+      count,
     });
   } catch (error) {
     console.error("Fetch Submissions Error", error);
-    res.status(500).json({
-      error: "Fialed to fetch submissions",
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
