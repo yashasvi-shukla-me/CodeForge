@@ -1,8 +1,16 @@
 import React, { useState, useMemo, use } from "react";
 
 import { useAuthStore } from "../store/useAuthStore.js";
+import { useActions } from "../store/useAction.js";
 import { Link } from "react-router-dom";
-import { Bookmark, PencilIcon, Trash, TrashIcon, Plus } from "lucide-react";
+import {
+  Bookmark,
+  PencilIcon,
+  Trash,
+  TrashIcon,
+  Plus,
+  Loader2,
+} from "lucide-react";
 
 const ProblemTable = ({ problems }) => {
   const { authUser } = useAuthStore();
@@ -11,6 +19,8 @@ const ProblemTable = ({ problems }) => {
   const [difficulty, setDifficulty] = useState("All");
   const [selectedTag, setSelectedTag] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { onDeleteProblem, isDeletingProblem } = useActions();
 
   const allTags = useMemo(() => {
     if (!Array.isArray(problems)) return [];
@@ -46,7 +56,9 @@ const ProblemTable = ({ problems }) => {
 
   const difficulties = ["EASY", "MEDIUM", "HARD"];
 
-  const handleDelete = (id) => {};
+  const handleDelete = (id) => {
+    onDeleteProblem(id);
+  };
 
   const handleAddToPlaylist = (id) => {};
 
@@ -167,7 +179,11 @@ const ProblemTable = ({ problems }) => {
                               onClick={() => handleDelete(problem.id)}
                               className="btn btn-sm btn-error"
                             >
-                              <TrashIcon className="w-4 h-4 text-white" />
+                              {isDeletingProblem ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              ) : (
+                                <TrashIcon className="w-4 h-4 text-white" />
+                              )}
                             </button>
                             <button disabled className="btn btn-sm btn-warning">
                               <PencilIcon className="w-4 h-4 text-white" />
