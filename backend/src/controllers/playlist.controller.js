@@ -1,3 +1,5 @@
+import { db } from "../libs/db.js";
+
 export const createPlaylist = async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -98,7 +100,7 @@ export const addProblemToPlaylist = async (req, res) => {
       });
     }
 
-    const problemsInPlaylist = await db.problemsInPlaylist.createMany({
+    const problemsInPlaylist = await db.problemInPlaylist.createMany({
       data: problemIds.map((problemId) => ({
         playlistId,
         problemId,
@@ -154,7 +156,7 @@ export const removeProblemFromPlaylist = async (req, res) => {
       });
     }
 
-    const deletedProblems = await db.problemsInPlaylist.deleteMany({
+    const deletedProblems = await db.problemInPlaylist.deleteMany({
       where: {
         playlistId,
         problemId: {
