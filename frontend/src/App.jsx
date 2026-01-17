@@ -10,6 +10,7 @@ import Layout from "./layout/layout.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
 import AddProblem from "./page/AddProblem.jsx";
 import ProblemPage from "./page/ProblemPage.jsx";
+import ProfilePage from "./page/ProfilePage.jsx";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -36,6 +37,11 @@ function App() {
             element={authUser ? <HomePage /> : <Navigate to="/login" />}
           />
         </Route>
+
+        <Route
+          path="/profile"
+          element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
+        />
 
         <Route
           path="/login"
