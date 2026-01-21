@@ -4,8 +4,10 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "go": "nodemon src/index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
+
   "keywords": [],
   "author": "",
   "license": "ISC",
