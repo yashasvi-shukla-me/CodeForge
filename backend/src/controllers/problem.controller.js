@@ -75,13 +75,6 @@ export const getAllProblems = async (req, res) => {
       },
     });
 
-    if (problems.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No problems found",
-      });
-    }
-
     res.status(200).json({
       success: true,
       message: "Problems retrieved successfully",

@@ -3,6 +3,8 @@ import { db } from "../libs/db.js";
 import { UserRole } from "../generated/prisma/index.js";
 import jwt from "jsonwebtoken";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export const register = async (req, res) => {
   const { email, password, name } = req.body;
 
@@ -31,8 +33,8 @@ export const register = async (req, res) => {
 
     res.cookie("jwt", token, {
       httpOnly: true,
-      sameSite: "none",
-      secure: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
@@ -80,8 +82,8 @@ export const login = async (req, res) => {
 
     res.cookie("jwt", token, {
       httpOnly: true,
-      sameSite: "none",
-      secure: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
@@ -109,8 +111,8 @@ export const logout = async (req, res) => {
   try {
     res.clearCookie("jwt", {
       httpOnly: true,
-      sameSite: "none",
-      secure: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
     });
 
     res.status(200).json({

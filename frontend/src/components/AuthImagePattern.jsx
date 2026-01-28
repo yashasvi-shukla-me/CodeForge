@@ -1,10 +1,8 @@
-import { Code, Terminal, FileCode, Braces } from "lucide-react"
-import { useEffect, useState } from "react"
-
-
+import { Code, Terminal, FileCode, Braces } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const CodeBackground = ({ title, subtitle }) => {
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(0);
 
   // Code snippets to display in the background
   const codeSnippets = [
@@ -56,15 +54,15 @@ function reverseList(head) {
   
   return stack.length === 0;
 }`,
-  ]
+  ];
 
   // Rotate through code snippets
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % codeSnippets.length)
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [codeSnippets.length])
+      setActiveIndex((prev) => (prev + 1) % codeSnippets.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [codeSnippets.length]);
 
   return (
     <div className="hidden lg:flex flex-col items-center justify-center bg-slate-900 text-white p-12 relative overflow-hidden">
@@ -100,7 +98,7 @@ function reverseList(head) {
               <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
             </div>
-            <div className="text-xs font-mono opacity-70">problem.js</div>
+            <div className="text-xs font-mono opacity-70">yashasvi.js</div>
           </div>
 
           {/* Code content */}
@@ -126,7 +124,7 @@ function reverseList(head) {
         <p className="text-slate-300 text-center">{subtitle}</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CodeBackground
+export default CodeBackground;
