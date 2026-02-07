@@ -1,9 +1,12 @@
+import { skip } from "../generated/prisma/runtime/library.js";
 import { db } from "../libs/db.js";
 
 export const createPlaylist = async (req, res) => {
   try {
     const { name, description } = req.body;
     const userId = req.user.id;
+
+    console.log("creating playlist for user:", userId);
 
     const playlist = await db.playlist.create({
       data: {
@@ -40,6 +43,9 @@ export const getAllListDetails = async (req, res) => {
         },
       },
     });
+
+    console.log("fetching playlists for user:", req.user.id);
+
     res.status(200).json({
       success: true,
       playlists,
@@ -93,29 +99,24 @@ export const addProblemToPlaylist = async (req, res) => {
   const { problemIds } = req.body;
 
   try {
-    if (!Array.isArray(problemIds) || problemIds.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid problem IDs",
-      });
-    }
-
-    const problemsInPlaylist = await db.problemInPlaylist.createMany({
+    const result = await db.problemInPlaylist.createMany({
       data: problemIds.map((problemId) => ({
         playlistId,
         problemId,
       })),
+      skipDuplicates: true,
     });
 
     res.status(201).json({
       success: true,
-      message: "Problems added to playlist successfully",
-      problemsInPlaylist,
+      addedCount: result.count,
     });
   } catch (error) {
+    console.error("Add problem error:", error);
+
     res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: error.message,
     });
   }
 };

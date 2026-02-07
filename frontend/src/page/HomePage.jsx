@@ -19,8 +19,8 @@ const HomePage = () => {
     );
   }
 
-  console.log("Problems on HomePage:", problems);
-  console.log("Problems on HomePage:", problems, problems?.length);
+  // console.log("Problems on HomePage:", problems);
+  // console.log("Problems on HomePage:", problems, problems?.length);
 
   return (
     <div className="min-h-screen flex flex-col items-center mt-14 px-4">
