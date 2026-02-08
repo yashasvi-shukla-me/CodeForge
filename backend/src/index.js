@@ -30,7 +30,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost:5173",
-      "https://codeforge-theta.vercel.app",
+      process.env.FRONTEND_URL || "https://codeforge-frontend.vercel.app",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
