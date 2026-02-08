@@ -1,4 +1,5 @@
 import { createSubmission } from "../libs/judge0.lib.js";
+import { db } from "../libs/db.js";
 
 export const createProblem = async (req, res) => {
   try {
@@ -31,7 +32,7 @@ export const createProblem = async (req, res) => {
       });
     }
 
-    const newProblem = await prisma.problem.create({
+    const newProblem = await db.problem.create({
       data: {
         title,
         description,
@@ -65,7 +66,7 @@ export const createProblem = async (req, res) => {
 
 export const getAllProblems = async (req, res) => {
   try {
-    const problems = await prisma.problem.findMany({
+    const problems = await db.problem.findMany({
       include: {
         solvedBy: {
           where: {
@@ -94,7 +95,7 @@ export const getProblemById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const problem = await prisma.problem.findUnique({
+    const problem = await db.problem.findUnique({
       where: { id: String(id) },
     });
 
@@ -140,7 +141,7 @@ export const updateProblem = async (req, res) => {
     } = req.body;
 
     // Check if problem exists
-    const existingProblem = await prisma.problem.findUnique({
+    const existingProblem = await db.problem.findUnique({
       where: { id },
     });
 
@@ -152,7 +153,7 @@ export const updateProblem = async (req, res) => {
     }
 
     // Update fields (only provided ones)
-    const updatedProblem = await prisma.problem.update({
+    const updatedProblem = await db.problem.update({
       where: { id },
       data: {
         title: title ?? existingProblem.title,
@@ -188,7 +189,7 @@ export const updateProblem = async (req, res) => {
 export const deleteProblem = async (req, res) => {
   const { id } = req.params;
   try {
-    const problem = await prisma.problem.findUnique({
+    const problem = await db.problem.findUnique({
       where: { id: String(id) },
     });
 
@@ -198,7 +199,7 @@ export const deleteProblem = async (req, res) => {
         message: "Problem not found",
       });
     }
-    await prisma.problem.delete({
+    await db.problem.delete({
       where: { id: String(id) },
     });
 
@@ -218,7 +219,7 @@ export const deleteProblem = async (req, res) => {
 
 export const getAllProblemsSolvedByUser = async (req, res) => {
   try {
-    const problems = await prisma.problem.findMany({
+    const problems = await db.problem.findMany({
       where: {
         solvedBy: {
           some: {
