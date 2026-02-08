@@ -3,19 +3,22 @@ import { db } from "../libs/db.js";
 
 export const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.cookies.jwt;
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
+    // Expect: Authorization: Bearer <token>
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         message: "Unauthorized: No token provided",
       });
     }
 
+    const token = authHeader.split(" ")[1];
+
     let decoded;
 
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (error) {
+    } catch {
       return res.status(401).json({
         message: "Unauthorized: Invalid token",
       });
@@ -43,13 +46,7 @@ export const authMiddleware = async (req, res, next) => {
 
 export const checkAdmin = async (req, res, next) => {
   try {
-    const userId = req.user.id;
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    });
-
-    if (user.role !== "ADMIN") {
+    if (req.user.role !== "ADMIN") {
       return res.status(403).json({
         message: "Forbidden: Admins only",
       });
