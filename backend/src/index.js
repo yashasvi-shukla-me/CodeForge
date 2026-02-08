@@ -14,6 +14,8 @@ dotenv.config();
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 // Health check route
 app.get("/health", (req, res) => {
   res.status(200).json({
