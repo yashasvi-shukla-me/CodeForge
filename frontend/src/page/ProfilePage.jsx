@@ -26,8 +26,6 @@ const ProfilePage = () => {
 
   if (!authUser) return <div>Not authenticated</div>;
 
-  console.log(authUser);
-
   const joinedDate = authUser?.createdAt
     ? new Date(authUser.createdAt).toLocaleDateString("en-IN", {
         day: "numeric",
@@ -51,7 +49,8 @@ const ProfilePage = () => {
         {/* Profile header */}
         <div className="bg-base-100 rounded-2xl shadow p-8 flex items-center gap-6">
           <img
-            src={`https://api.dicebear.com/7.x/initials/svg?seed=${authUser.email}`}
+            src="https://api.dicebear.com/9.x/bottts/svg?seed=Andrea"
+            alt="avatar"
             className="w-28 h-28 rounded-full"
           />
 

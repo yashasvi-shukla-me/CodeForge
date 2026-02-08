@@ -60,7 +60,7 @@ const ProblemPage = () => {
         problem.testcases?.map((tc) => ({
           input: tc.input,
           output: tc.output,
-        })) || []
+        })) || [],
       );
     }
   }, [problem, selectedLanguage]);
@@ -70,8 +70,6 @@ const ProblemPage = () => {
       getSubmissionForProblem(id);
     }
   }, [activeTab, id]);
-
-  console.log("submissions data:", submissions);
 
   const handleLanguageChange = (e) => {
     const lang = e.target.value;
@@ -133,7 +131,7 @@ const ProblemPage = () => {
                         </div>
                       )}
                     </div>
-                  )
+                  ),
                 )}
               </>
             )}
