@@ -17,21 +17,21 @@ problemRoutes.post(
   "/create-problem",
   authMiddleware,
   checkAdmin,
-  createProblem
+  createProblem,
 );
 
 problemRoutes.put(
   "/update-problem/:id",
   authMiddleware,
   checkAdmin,
-  updateProblem
+  updateProblem,
 );
 
 problemRoutes.delete(
   "/delete-problem/:id",
   authMiddleware,
   checkAdmin,
-  deleteProblem
+  deleteProblem,
 );
 
 // --------------------- User Routes ---------------------
@@ -40,11 +40,11 @@ problemRoutes.get("/get-problem/:id", authMiddleware, getProblemById);
 problemRoutes.get(
   "/get-solved-problems",
   authMiddleware,
-  getAllProblemsSolvedByUser
+  getAllProblemsSolvedByUser,
 );
 
 // --------------------- Judge0 Execution ---------------------
 // anyone logged in can run code
-problemRoutes.post("/run", authMiddleware, runProblemCode);
+problemRoutes.post("/execute-code", authMiddleware, runProblemCode);
 
 export default problemRoutes;

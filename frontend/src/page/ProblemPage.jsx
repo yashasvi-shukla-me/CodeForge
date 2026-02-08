@@ -247,7 +247,7 @@ const ProblemPage = () => {
 
         {/* RIGHT PANEL */}
         <div className="card bg-base-100 shadow-xl">
-          <div className="h-[520px]">
+          <div className="h-130">
             <Editor
               height="100%"
               language={selectedLanguage.toLowerCase()}
