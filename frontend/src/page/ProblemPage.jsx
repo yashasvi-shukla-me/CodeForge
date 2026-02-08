@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Editor from "@monaco-editor/react";
+import toast from "react-hot-toast";
+
 import {
   Play,
   FileText,
@@ -10,7 +12,6 @@ import {
   Share2,
   Clock,
   ChevronRight,
-  BookOpen,
   Terminal,
   Code2,
   Users,
@@ -22,71 +23,123 @@ import { useProblemStore } from "../store/useProblemStore.js";
 import { useExecutionStore } from "../store/useExecutionStore.js";
 import { useSubmissionStore } from "../store/useSubmissionStore.js";
 import { getLanguageId } from "../lib/lang.js";
+
 import SubmissionResults from "../components/Submission.jsx";
 import SubmissionList from "../components/SubmissionList.jsx";
 
 const ProblemPage = () => {
   const { id } = useParams();
 
+  /* ---------------- STORES ---------------- */
   const { getProblemById, problem, isProblemLoading } = useProblemStore();
 
   const {
+    submission: runResult,
+    executeCode,
+    isExecuting,
+  } = useExecutionStore();
+
+  const {
     submission: submissions,
-    isLoading: isSubmissionsLoading,
+    submitSolution,
     getSubmissionForProblem,
     getSubmissionCountForProblem,
     submissionCount,
+    isLoading: isSubmissionsLoading,
   } = useSubmissionStore();
 
+  /* ---------------- STATE ---------------- */
   const [code, setCode] = useState("");
   const [activeTab, setActiveTab] = useState("description");
   const [selectedLanguage, setSelectedLanguage] = useState("JAVASCRIPT");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [testcases, setTestCases] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { executeCode, isExecuting, submission } = useExecutionStore();
-
-  // const submissionCount = 10;
+  /* ---------------- LOAD DATA ---------------- */
 
   useEffect(() => {
     getProblemById(id);
     getSubmissionCountForProblem(id);
-  }, [id]);
+  }, [id, getProblemById, getSubmissionCountForProblem]);
 
   useEffect(() => {
-    if (problem) {
+    if (!problem) return;
+
+    // load starter code only first time
+    if (!code) {
       setCode(problem.codeSnippets?.[selectedLanguage] || "");
-      setTestCases(
-        problem.testcases?.map((tc) => ({
-          input: tc.input,
-          output: tc.output,
-        })) || [],
-      );
     }
+
+    setTestCases(
+      problem.testcases?.map((tc) => ({
+        input: tc.input,
+        output: tc.output,
+      })) || [],
+    );
   }, [problem, selectedLanguage]);
 
   useEffect(() => {
-    if (activeTab === "submissions" && id) {
+    if (activeTab === "submissions") {
       getSubmissionForProblem(id);
     }
-  }, [activeTab, id]);
+  }, [activeTab, id, getSubmissionForProblem]);
+
+  /* ---------------- HANDLERS ---------------- */
 
   const handleLanguageChange = (e) => {
     const lang = e.target.value;
     setSelectedLanguage(lang);
-    setCode(problem.codeSnippets?.[lang] || "");
+
+    // do NOT wipe user code unless empty
+    if (!code) {
+      setCode(problem.codeSnippets?.[lang] || "");
+    }
   };
+
+  /* -------- RUN ONLY (NO SUBMIT) -------- */
+  const handleRunCode = async () => {
+    try {
+      await executeCode({
+        source_code: code,
+        language_id: getLanguageId(selectedLanguage),
+      });
+    } catch {
+      toast.error("Execution failed");
+    }
+  };
+
+  /* -------- SUBMIT ONLY -------- */
+  const handleSubmitSolution = async () => {
+    try {
+      setIsSubmitting(true);
+
+      await submitSolution({
+        problemId: problem.id,
+        source_code: code,
+        language_id: getLanguageId(selectedLanguage),
+      });
+
+      toast.success("Submitted successfully");
+      setActiveTab("submissions");
+    } catch {
+      toast.error("Submission failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  /* ---------------- LOADING SCREEN ---------------- */
 
   if (isProblemLoading || !problem) {
     return (
       <div className="flex items-center justify-center h-screen bg-base-200">
-        <div className="card bg-base-100 p-8 shadow-xl">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-          <p className="mt-4 text-base-content/70">Loading problem...</p>
-        </div>
+        <span className="loading loading-spinner loading-lg text-primary"></span>
       </div>
     );
   }
+
+  /* ---------------- DESCRIPTION TAB ---------------- */
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -95,59 +148,31 @@ const ProblemPage = () => {
           <div className="prose max-w-none">
             <p className="text-lg mb-6">{problem.description}</p>
 
-            {problem.examples && (
-              <>
-                <h3 className="text-xl font-bold mb-4">Examples:</h3>
-                {Object.entries(problem.examples).map(
-                  ([lang, example], idx) => (
-                    <div
-                      key={lang}
-                      className="bg-base-200 p-6 rounded-xl mb-6 font-mono"
-                    >
-                      <div className="mb-4">
-                        <div className="text-indigo-300 mb-2 text-base font-semibold">
-                          Input:
-                        </div>
-                        <span className="bg-black/90 px-4 py-1 rounded-lg font-semibold text-white">
-                          {example.input}
-                        </span>
-                      </div>
-                      <div className="mb-4">
-                        <div className="text-indigo-300 mb-2 text-base font-semibold">
-                          Output:
-                        </div>
-                        <span className="bg-black/90 px-4 py-1 rounded-lg font-semibold text-white">
-                          {example.output}
-                        </span>
-                      </div>
-                      {example.explanation && (
-                        <div>
-                          <div className="text-emerald-300 mb-2 text-base font-semibold">
-                            Explanation:
-                          </div>
-                          <p className="text-base-content/70 text-lg font-sem">
-                            {example.explanation}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ),
-                )}
-              </>
-            )}
+            {problem.examples &&
+              Object.values(problem.examples).map((ex, idx) => (
+                <div
+                  key={idx}
+                  className="bg-base-200 p-6 rounded-xl mb-6 font-mono"
+                >
+                  <p>
+                    <b>Input:</b> {ex.input}
+                  </p>
+                  <p>
+                    <b>Output:</b> {ex.output}
+                  </p>
+                  {ex.explanation && <p>{ex.explanation}</p>}
+                </div>
+              ))}
 
             {problem.constraints && (
               <>
-                <h3 className="text-xl font-bold mb-4">Constraints:</h3>
-                <div className="bg-base-200 p-6 rounded-xl mb-6">
-                  <span className="bg-black/90 px-4 py-1 rounded-lg font-semibold text-white text-lg">
-                    {problem.constraints}
-                  </span>
-                </div>
+                <h3>Constraints</h3>
+                <pre>{problem.constraints}</pre>
               </>
             )}
           </div>
         );
+
       case "submissions":
         return (
           <SubmissionList
@@ -157,225 +182,131 @@ const ProblemPage = () => {
         );
 
       case "discussion":
-        return (
-          <div className="p-4 text-center text-base-content/70">
-            No discussions yet
-          </div>
-        );
+        return <div className="p-4 text-center">No discussions yet</div>;
+
       case "hints":
         return (
-          <div className="p-4">
-            {problem?.hints ? (
-              <div className="bg-base-200 p-6 rounded-xl">
-                <span className="bg-black/90 px-4 py-1 rounded-lg font-semibold text-white text-lg">
-                  {problem.hints}
-                </span>
-              </div>
-            ) : (
-              <div className="text-center text-base-content/70">
-                No hints available
-              </div>
-            )}
-          </div>
+          <div className="p-4">{problem.hints || "No hints available"}</div>
         );
+
       default:
         return null;
     }
   };
 
-  const handleRunCode = (e) => {
-    e.preventDefault();
-    try {
-      const language_id = getLanguageId(selectedLanguage);
-      const stdin = problem.testcases.map((tc) => tc.input);
-      const expected_outputs = problem.testcases.map((tc) => tc.output);
-      executeCode(code, language_id, stdin, expected_outputs, id);
-    } catch (error) {
-      console.error("Error running code:", error);
-    }
-  };
+  /* ---------------- UI ---------------- */
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-base-300 to-base-200">
+    <div className="min-h-screen bg-base-200">
+      {/* ---------- HEADER ---------- */}
       <nav className="navbar bg-base-100 shadow-lg px-4">
-        <div className="flex-1 gap-2">
-          <Link to={"/"} className="flex items-center gap-2 text-primary">
-            <Home className="w-6 h-6" />
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-          <div className="mt-2">
-            <h1 className="text-xl font-bold">{problem.title}</h1>
-            <div className="flex items-center gap-2 text-sm text-base-content/70 mt-5">
-              <Clock className="w-4 h-4" />
-              <span>
-                Updated{" "}
-                {new Date(problem.createdAt).toLocaleString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
-              <span className="text-base-content/30">•</span>
-              <Users className="w-4 h-4" />
-              <span>{submissionCount} Submissions</span>
-              <span className="text-base-content/30">•</span>
-              <ThumbsUp className="w-4 h-4" />
-              <span>95% Success Rate</span>
-            </div>
-          </div>
-        </div>
-        <div className="flex-none gap-4">
-          <button
-            className={`btn btn-ghost btn-circle ${
-              isBookmarked ? "text-primary" : ""
-            }`}
-            onClick={() => setIsBookmarked(!isBookmarked)}
-          >
-            <Bookmark className="w-5 h-5" />
-          </button>
-          <button className="btn btn-ghost btn-circle">
-            <Share2 className="w-5 h-5" />
-          </button>
+        <Link to="/" className="flex items-center gap-2 text-primary">
+          <Home className="w-5 h-5" />
+          <ChevronRight />
+        </Link>
+
+        <h1 className="ml-3 font-bold text-lg">{problem.title}</h1>
+
+        <div className="ml-auto flex gap-3">
           <select
-            className="select select-bordered select-primary w-40"
+            className="select select-bordered select-sm"
             value={selectedLanguage}
             onChange={handleLanguageChange}
           >
             {Object.keys(problem.codeSnippets || {}).map((lang) => (
-              <option key={lang} value={lang}>
-                {lang.charAt(0).toUpperCase() + lang.slice(1)}
-              </option>
+              <option key={lang}>{lang}</option>
             ))}
           </select>
+
+          <button
+            className={`btn btn-ghost ${isBookmarked ? "text-primary" : ""}`}
+            onClick={() => setIsBookmarked(!isBookmarked)}
+          >
+            <Bookmark />
+          </button>
         </div>
       </nav>
 
-      <div className="container mx-auto p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body p-0">
-              <div className="tabs tabs-bordered">
+      {/* ---------- MAIN GRID ---------- */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-4">
+        {/* LEFT PANEL */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="tabs tabs-bordered">
+            {["description", "submissions", "discussion", "hints"].map(
+              (tab) => (
                 <button
-                  className={`tab gap-2 ${
-                    activeTab === "description" ? "tab-active" : ""
-                  }`}
-                  onClick={() => setActiveTab("description")}
+                  key={tab}
+                  className={`tab ${activeTab === tab ? "tab-active" : ""}`}
+                  onClick={() => setActiveTab(tab)}
                 >
-                  <FileText className="w-4 h-4" />
-                  Description
+                  {tab}
                 </button>
-                <button
-                  className={`tab gap-2 ${
-                    activeTab === "submissions" ? "tab-active" : ""
-                  }`}
-                  onClick={() => setActiveTab("submissions")}
-                >
-                  <Code2 className="w-4 h-4" />
-                  Submissions
-                </button>
-                <button
-                  className={`tab gap-2 ${
-                    activeTab === "discussion" ? "tab-active" : ""
-                  }`}
-                  onClick={() => setActiveTab("discussion")}
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  Discussion
-                </button>
-                <button
-                  className={`tab gap-2 ${
-                    activeTab === "hints" ? "tab-active" : ""
-                  }`}
-                  onClick={() => setActiveTab("hints")}
-                >
-                  <Lightbulb className="w-4 h-4" />
-                  Hints
-                </button>
-              </div>
-
-              <div className="p-6">{renderTabContent()}</div>
-            </div>
+              ),
+            )}
           </div>
 
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body p-0">
-              <div className="tabs tabs-bordered">
-                <button className="tab tab-active gap-2">
-                  <Terminal className="w-4 h-4" />
-                  Code Editor
-                </button>
-              </div>
+          <div className="p-6">{renderTabContent()}</div>
+        </div>
 
-              <div className="h-150 w-full">
-                <Editor
-                  key={`${problem?.id}-${selectedLanguage}`}
-                  height="100%"
-                  language={selectedLanguage.toLowerCase()}
-                  theme="vs-dark"
-                  value={code}
-                  onChange={(value) => setCode(value || "")}
-                  options={{
-                    minimap: { enabled: false },
-                    fontSize: 20,
-                    lineNumbers: "on",
-                    roundedSelection: false,
-                    scrollBeyondLastLine: false,
-                    readOnly: false,
-                    automaticLayout: true,
-                  }}
-                />
-              </div>
+        {/* RIGHT PANEL */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="h-[520px]">
+            <Editor
+              height="100%"
+              language={selectedLanguage.toLowerCase()}
+              theme="vs-dark"
+              value={code}
+              onChange={(v) => setCode(v || "")}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 16,
+                automaticLayout: true,
+              }}
+            />
+          </div>
 
-              <div className="p-4 border-t border-base-300 bg-base-200">
-                <div className="flex justify-between items-center">
-                  <button
-                    className={`btn btn-primary gap-2 ${
-                      isExecuting ? "loading" : ""
-                    }`}
-                    onClick={handleRunCode}
-                    disabled={isExecuting}
-                  >
-                    {!isExecuting && <Play className="w-4 h-4" />}
-                    Run Code
-                  </button>
-                  <button className="btn btn-success gap-2">
-                    Submit Solution
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div className="p-4 border-t flex justify-between">
+            <button
+              className={`btn btn-primary ${isExecuting ? "loading" : ""}`}
+              onClick={handleRunCode}
+              disabled={isExecuting || isSubmitting}
+            >
+              Run Code
+            </button>
+
+            <button
+              className={`btn btn-success ${isSubmitting ? "loading" : ""}`}
+              onClick={handleSubmitSolution}
+              disabled={isSubmitting || isExecuting}
+            >
+              Submit Solution
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="card bg-base-100 shadow-xl mt-6">
+      {/* ---------- RESULT SECTION ---------- */}
+      <div className="card bg-base-100 m-4 shadow-xl">
         <div className="card-body">
-          {submission ? (
-            <SubmissionResults submission={submission} />
+          {runResult ? (
+            <SubmissionResults submission={runResult} />
           ) : (
-            <>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold">Test Cases</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="table table-zebra w-full">
-                  <thead>
-                    <tr>
-                      <th>Input</th>
-                      <th>Expected Output</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {testcases.map((testCase, index) => (
-                      <tr key={index}>
-                        <td className="font-mono">{testCase.input}</td>
-                        <td className="font-mono">{testCase.output}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Input</th>
+                  <th>Expected</th>
+                </tr>
+              </thead>
+              <tbody>
+                {testcases.map((tc, i) => (
+                  <tr key={i}>
+                    <td>{tc.input}</td>
+                    <td>{tc.output}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       </div>
