@@ -6,25 +6,17 @@ export const useExecutionStore = create((set) => ({
   isExecuting: false,
   submission: null,
 
-  executeCode: async (
+  // Run code ONLY (no submission save)
+  executeCode: async ({
     source_code,
     language_id,
-    stdin,
-    expected_outputs,
-    problemId
-  ) => {
+    stdin = "",
+    expected_outputs = [],
+    problemId = null,
+  }) => {
     try {
       set({ isExecuting: true });
-      console.log(
-        "Submission:",
-        JSON.stringify({
-          source_code,
-          language_id,
-          stdin,
-          expected_outputs,
-          problemId,
-        })
-      );
+
       const res = await axiosInstance.post("/execute-code", {
         source_code,
         language_id,
@@ -33,14 +25,18 @@ export const useExecutionStore = create((set) => ({
         problemId,
       });
 
-      set({ submission: res.data.submission });
+      // backend usually returns res.data.data or res.data.submission
+      set({ submission: res.data.data || res.data.submission });
 
-      toast.success(res.data.message);
+      toast.success("Execution completed");
     } catch (error) {
-      console.log("Error executing code", error);
-      toast.error("Error executing code");
+      console.error("Error executing code", error);
+      toast.error("Execution failed");
+      throw error;
     } finally {
       set({ isExecuting: false });
     }
   },
+
+  clearExecution: () => set({ submission: null }),
 }));

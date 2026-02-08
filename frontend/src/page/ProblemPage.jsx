@@ -91,10 +91,7 @@ const ProblemPage = () => {
     const lang = e.target.value;
     setSelectedLanguage(lang);
 
-    // do NOT wipe user code unless empty
-    if (!code) {
-      setCode(problem.codeSnippets?.[lang] || "");
-    }
+    setCode(problem.codeSnippets?.[lang] || "");
   };
 
   /* -------- RUN ONLY (NO SUBMIT) -------- */
@@ -254,6 +251,7 @@ const ProblemPage = () => {
             <Editor
               height="100%"
               language={selectedLanguage.toLowerCase()}
+              key={selectedLanguage}
               theme="vs-dark"
               value={code}
               onChange={(v) => setCode(v || "")}
