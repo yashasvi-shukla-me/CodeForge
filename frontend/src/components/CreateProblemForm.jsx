@@ -1,6 +1,6 @@
-import {useForm, useFieldArray, Controller} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {z} from 'zod';
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Plus,
   Trash2,
@@ -9,13 +9,13 @@ import {
   Lightbulb,
   BookOpen,
   CheckCircle2,
-  Download
+  Download,
 } from "lucide-react";
-import Editor from '@monaco-editor/react';
-import {useState} from 'react';
-import { axiosInstance } from '../lib/axios';
-import toast from 'react-hot-toast';
-import {useNavigate} from 'react-router-dom';
+import Editor from "@monaco-editor/react";
+import { useState } from "react";
+import { axiosInstance } from "../lib/axios";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const problemSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -30,7 +30,7 @@ const problemSchema = z.object({
       z.object({
         input: z.string().min(1, "Input is required"),
         output: z.string().min(1, "Output is required"),
-      })
+      }),
     )
     .min(1, "At least one test case is required"),
   examples: z.object({
@@ -353,69 +353,44 @@ const sampleStringProblem = {
     },
   },
   codeSnippets: {
-    JAVASCRIPT: `/**
-   * @param {string} s
-   * @return {boolean}
-   */
-  function isPalindrome(s) {
-    // Write your code here
-  }
-  
-  // Add readline for dynamic input handling
-  const readline = require('readline');
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    terminal: false
-  });
-  
-  // Process input line
-  rl.on('line', (line) => {
-    // Call solution with the input string
-    const result = isPalindrome(line);
-    
-    // Output the result
-    console.log(result ? "true" : "false");
-    rl.close();
-  });`,
-    PYTHON: `class Solution:
-      def isPalindrome(self, s: str) -> bool:
-          # Write your code here
-          pass
-  
-  # Input parsing
-  if __name__ == "__main__":
-      import sys
-      # Read the input string
-      s = sys.stdin.readline().strip()
-      
-      # Call solution
-      sol = Solution()
-      result = sol.isPalindrome(s)
-      
-      # Output result
-      print(str(result).lower())  # Convert True/False to lowercase true/false`,
-    JAVA: `import java.util.Scanner;
+    JAVASCRIPT: `function solution(...args) {
+  // Write your code here
+  return null;
+}
+
+const fs = require('fs');
+const input = fs.readFileSync(0, 'utf8').trim().split("\\n");
+const args = input[0].split(" ").map(Number);
+
+console.log(solution(...args));`,
+
+    PYTHON: `import sys
+
+def solution(*args):
+    # Write your code here
+    return None
+
+if __name__ == "__main__":
+    args = list(map(int, sys.stdin.readline().split()))
+    print(solution(*args))`,
+
+    JAVA: `import java.util.*;
 
 public class Main {
-    public static String preprocess(String s) {
-        return s.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
-    }
-
-    public static boolean isPalindrome(String s) {
-       
+    static Object solution(int... args) {
+        // Write your code here
+        return null;
     }
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        String input = sc.nextLine();
-
-        boolean result = isPalindrome(input);
-        System.out.println(result ? "true" : "false");
+        int a = sc.nextInt();
+        int b = sc.nextInt();
+        System.out.println(solution(a, b));
     }
-}
-`,
+}`,
   },
+
   referenceSolutions: {
     JAVASCRIPT: `/**
    * @param {string} s
@@ -510,12 +485,17 @@ public class Main {
 };
 
 const CreateProblemForm = () => {
-
   const [sampleType, setSampleType] = useState("DP");
 
   const navigation = useNavigate();
 
-  const {register, control, handleSubmit, reset, formState: {errors}} = useForm({
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(problemSchema),
     defaultValues: {
       testcases: [{ input: "", output: "" }],
@@ -535,7 +515,7 @@ const CreateProblemForm = () => {
         PYTHON: "# Add your reference solution here",
         JAVA: "// Add your reference solution here",
       },
-    }
+    },
   });
 
   const {
@@ -563,30 +543,30 @@ const CreateProblemForm = () => {
   const onSubmit = async (value) => {
     try {
       setIsLoading(true);
-      const res = await axiosInstance.post('/problems/create-problem', value);
+      const res = await axiosInstance.post("/problems/create-problem", value);
       console.log(res.data);
       toast.success(res.data.message || "Problem created successfully!");
-      navigation("/")
+      navigation("/");
     } catch (error) {
       console.error(error);
       toast.error("Error creating problem. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  const loadSampleData=()=>{
-    const sampleData = sampleType === "DP" ? sampledpData : sampleStringProblem
-  
-   replaceTags(sampleData.tags.map((tag) => tag));
-  removeTestCase(sampleData.testcases.map((tc) => tc));
+  const loadSampleData = () => {
+    const sampleData = sampleType === "DP" ? sampledpData : sampleStringProblem;
+
+    replaceTags(sampleData.tags.map((tag) => tag));
+    replacetestcases(sampleData.testcases);
 
     reset(sampleData);
-}
+  };
 
   return (
-    <div className='container mx-auto py-8 px-4 max-w-7xl'>
-  <div className="card bg-base-100 shadow-xl">
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
+      <div className="card bg-base-100 shadow-xl">
         <div className="card-body p-6 md:p-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 pb-4 border-b">
             <h2 className="card-title text-2xl md:text-3xl flex items-center gap-3">
@@ -601,7 +581,7 @@ const CreateProblemForm = () => {
                   className={`btn join-item ${
                     sampleType === "DP" ? "btn-active" : ""
                   }`}
-                  onClick={() => setSampleType("array")}
+                  onClick={() => setSampleType("DP")}
                 >
                   DP Problem
                 </button>
@@ -849,7 +829,11 @@ const CreateProblemForm = () => {
                             render={({ field }) => (
                               <Editor
                                 height="300px"
-                                language={language.toLowerCase()}
+                                language={
+                                  language.toLowerCase() === "javascript"
+                                    ? "javascript"
+                                    : language.toLowerCase()
+                                }
                                 theme="vs-dark"
                                 value={field.value}
                                 onChange={field.onChange}
@@ -889,7 +873,11 @@ const CreateProblemForm = () => {
                             render={({ field }) => (
                               <Editor
                                 height="300px"
-                                language={language.toLowerCase()}
+                                language={
+                                  language.toLowerCase() === "javascript"
+                                    ? "javascript"
+                                    : language.toLowerCase()
+                                }
                                 theme="vs-dark"
                                 value={field.value}
                                 onChange={field.onChange}
@@ -1047,7 +1035,7 @@ const CreateProblemForm = () => {
         </div>
       </div>
     </div>
-  )
+  );
 };
 
-export default CreateProblemForm
+export default CreateProblemForm;
