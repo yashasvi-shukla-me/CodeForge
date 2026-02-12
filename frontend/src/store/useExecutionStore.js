@@ -6,37 +6,19 @@ export const useExecutionStore = create((set) => ({
   isExecuting: false,
   submission: null,
 
-  // Run code ONLY (no submission save)
-  executeCode: async ({
-    source_code,
-    language_id,
-    stdin = "",
-    expected_outputs = [],
-    problemId = null,
-  }) => {
+  executeCode: async (payload) => {
     try {
-      set({ isExecuting: true });
+      set({ isExecuting: true, submission: null });
 
-      const res = await axiosInstance.post("/execute-code", {
-        source_code,
-        language_id,
-        stdin,
-        expected_outputs,
-        problemId,
-      });
+      // ⭐ SEND FULL PAYLOAD AS-IS
+      const res = await axiosInstance.post("/execute-code", payload);
 
-      // backend usually returns res.data.data or res.data.submission
-      set({ submission: res.data.data || res.data.submission });
-
-      toast.success("Execution completed");
+      set({ submission: res.data.data });
     } catch (error) {
-      console.error("Error executing code", error);
+      console.log(error);
       toast.error("Execution failed");
-      throw error;
     } finally {
       set({ isExecuting: false });
     }
   },
-
-  clearExecution: () => set({ submission: null }),
 }));

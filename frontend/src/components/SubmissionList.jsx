@@ -6,95 +6,63 @@ import {
   Calendar,
 } from "lucide-react";
 
+const toArray = (v) => {
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+
+  try {
+    const parsed = JSON.parse(v);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return [v];
+  }
+};
+
+const avg = (arr) =>
+  arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+
 const SubmissionsList = ({ submissions, isLoading }) => {
-  // Helper function to safely parse JSON strings
-  const safeParse = (data) => {
-    try {
-      return JSON.parse(data);
-    } catch (error) {
-      console.error("Error parsing data:", error);
-      return [];
-    }
-  };
-
-  const calculateAverageTime = (timeData) => {
-    const timeArray = safeParse(timeData).map((t) => parseFloat(t));
-    if (!timeArray.length) return 0;
-    return timeArray.reduce((a, b) => a + b, 0) / timeArray.length;
-  };
-
-  const calculateAverageMemory = (memoryData) => {
-    const memoryArray = safeParse(memoryData).map((m) => parseFloat(m));
-    if (!memoryArray.length) return 0;
-    return memoryArray.reduce((a, b) => a + b, 0) / memoryArray.length;
-  };
-
-  // Loading state
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center p-8">
+      <div className="flex justify-center p-8">
         <span className="loading loading-spinner loading-lg text-primary"></span>
       </div>
     );
   }
 
-  // No submissions state
   if (!submissions?.length) {
-    return (
-      <div className="text-center p-8">
-        <div className="text-base-content/70">No submissions yet</div>
-      </div>
-    );
+    return <div className="p-8 text-center">No submissions yet</div>;
   }
 
   return (
     <div className="space-y-4">
-      {[...submissions].reverse().map((submission) => {
-        const avgMemory = calculateAverageMemory(submission.memory);
-        const avgTime = calculateAverageTime(submission.time);
+      {submissions.map((s) => {
+        const mem = avg(toArray(s.memory).map(Number));
+        const time = avg(toArray(s.time).map(Number));
 
         return (
-          <div
-            key={submission.id}
-            className="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow rounded-lg"
-          >
-            <div className="card-body p-4">
-              <div className="flex items-center justify-between">
-                {/* Left Section: Status and Language */}
-                <div className="flex items-center gap-4">
-                  {submission.status === "Accepted" ? (
-                    <div className="flex items-center gap-2 text-success">
-                      <CheckCircle2 className="w-6 h-6" />
-                      <span className="font-semibold">Accepted</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-error">
-                      <XCircle className="w-6 h-6" />
-                      <span className="font-semibold">{submission.status}</span>
-                    </div>
-                  )}
-                  <div className="badge badge-neutral">
-                    {submission.language}
-                  </div>
-                </div>
+          <div key={s.id} className="card bg-base-200 shadow p-4">
+            <div className="flex justify-between items-center">
+              <div className="flex gap-3 items-center">
+                {s.status === "Accepted" ? (
+                  <CheckCircle2 className="text-success w-5 h-5" />
+                ) : (
+                  <XCircle className="text-error w-5 h-5" />
+                )}
+                <span>{s.status}</span>
+                <span className="badge">{s.language}</span>
+              </div>
 
-                {/* Right Section: Runtime, Memory, and Date */}
-                <div className="flex items-center gap-4 text-base-content/70">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{avgTime.toFixed(3)} s</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Memory className="w-4 h-4" />
-                    <span>{avgMemory.toFixed(0)} KB</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      {new Date(submission.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
+              <div className="flex gap-4 text-sm opacity-70">
+                <span>
+                  <Clock /> {time.toFixed(3)} s
+                </span>
+                <span>
+                  <Memory /> {mem.toFixed(0)} KB
+                </span>
+                <span>
+                  <Calendar /> {new Date(s.createdAt).toLocaleDateString()}
+                </span>
               </div>
             </div>
           </div>

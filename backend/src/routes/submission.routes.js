@@ -4,6 +4,7 @@ import {
   getAllSubmissions,
   getSubmissionForProblem,
   getAllTheSubmissionsForProblem,
+  submitSolution,
 } from "../controllers/submission.controller.js";
 
 const submissionRoutes = express.Router();
@@ -12,13 +13,15 @@ submissionRoutes.get("/get-all-submissions", authMiddleware, getAllSubmissions);
 submissionRoutes.get(
   "/get-submission/:problemId",
   authMiddleware,
-  getSubmissionForProblem
+  getSubmissionForProblem,
 );
 
 submissionRoutes.get(
   "/get-submission-count/:problemId",
   authMiddleware,
-  getAllTheSubmissionsForProblem
+  getAllTheSubmissionsForProblem,
 );
+
+submissionRoutes.post("/submit", authMiddleware, submitSolution);
 
 export default submissionRoutes;

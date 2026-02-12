@@ -40,7 +40,7 @@ const ProblemPage = () => {
   } = useExecutionStore();
 
   const {
-    submission: submissions,
+    submissions,
     submitSolution,
     getSubmissionForProblem,
     getSubmissionCountForProblem,
@@ -90,7 +90,6 @@ const ProblemPage = () => {
   const handleLanguageChange = (e) => {
     const lang = e.target.value;
     setSelectedLanguage(lang);
-
     setCode(problem.codeSnippets?.[lang] || "");
   };
 
@@ -98,6 +97,7 @@ const ProblemPage = () => {
   const handleRunCode = async () => {
     try {
       await executeCode({
+        problemId: problem.id,
         source_code: code,
         language_id: getLanguageId(selectedLanguage),
       });
@@ -152,12 +152,26 @@ const ProblemPage = () => {
                   className="bg-base-200 p-6 rounded-xl mb-6 font-mono"
                 >
                   <p>
-                    <b>Input:</b> {ex.input}
+                    <b>Input:</b>{" "}
+                    {typeof ex.input === "object"
+                      ? JSON.stringify(ex.input)
+                      : ex.input}
                   </p>
+
                   <p>
-                    <b>Output:</b> {ex.output}
+                    <b>Output:</b>{" "}
+                    {typeof ex.output === "object"
+                      ? JSON.stringify(ex.output)
+                      : ex.output}
                   </p>
-                  {ex.explanation && <p>{ex.explanation}</p>}
+
+                  {ex.explanation && (
+                    <p>
+                      {typeof ex.explanation === "object"
+                        ? JSON.stringify(ex.explanation)
+                        : ex.explanation}
+                    </p>
+                  )}
                 </div>
               ))}
 

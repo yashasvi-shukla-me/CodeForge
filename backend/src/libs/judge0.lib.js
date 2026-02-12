@@ -17,7 +17,7 @@ export const createSubmission = async (sourceCode, languageId) => {
           "X-RapidAPI-Key": API_KEY,
           "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
         },
-      }
+      },
     );
 
     return response.data;
@@ -27,63 +27,89 @@ export const createSubmission = async (sourceCode, languageId) => {
   }
 };
 
-export const submitBatch = async (submissions) => {
-  try {
+// export const submitBatch = async (submissions) => {
+//   try {
+//     const response = await axios.post(
+//       `${API_URL}/submissions/batch?base64_encoded=false`,
+//       { submissions },
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//           "X-RapidAPI-Key": API_KEY,
+//           "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+//         },
+//       },
+//     );
+
+//     const tokens = response.data.map((item) => item.token);
+
+//     const results = await pollBatchResults(tokens);
+
+//     return results;
+//   } catch (err) {
+//     console.error("Judge0 Batch API Error:", err.response?.data || err.message);
+//     throw err;
+//   }
+// };
+
+export const runTestCasesSequentially = async (submissions) => {
+  const results = [];
+
+  for (const sub of submissions) {
     const response = await axios.post(
-      `${API_URL}/submissions/batch?base64_encoded=false&wait=true`,
-      { submissions },
+      `${API_URL}/submissions?base64_encoded=false&wait=true`,
+      sub,
       {
         headers: {
           "Content-Type": "application/json",
           "X-RapidAPI-Key": API_KEY,
           "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
         },
-      }
+      },
     );
 
-    return response.data;
-  } catch (err) {
-    console.error("Judge0 Batch API Error:", err.response?.data || err.message);
-    throw err;
+    results.push(response.data);
   }
+
+  return results;
 };
 
 export const pollBatchResults = async (
   tokens,
-  interval = 2000,
-  maxAttempts = 15
+  interval = 1500,
+  maxAttempts = 10,
 ) => {
-  const results = {};
-  const pendingTokens = new Set(tokens);
-  let attempts = 0;
+  const results = [];
 
-  while (pendingTokens.size > 0 && attempts < maxAttempts) {
-    await new Promise((resolve) => setTimeout(resolve, interval));
+  for (const token of tokens) {
+    let attempts = 0;
 
-    const response = await axios.get(
-      `${API_URL}/submissions/batch?base64_encoded=false&tokens=${Array.from(
-        pendingTokens
-      ).join(",")}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "X-RapidAPI-Key": API_KEY,
-          "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+    while (attempts < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, interval));
+
+      const response = await axios.get(
+        `${API_URL}/submissions/${token}?base64_encoded=false`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-RapidAPI-Key": API_KEY,
+            "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+          },
         },
-      }
-    );
+      );
 
-    response.data.submissions.forEach((submission) => {
-      if (submission.status?.id >= 3) {
-        results[submission.token] = submission;
-        pendingTokens.delete(submission.token);
-      }
-    });
+      const submission = response.data;
 
-    attempts++;
+      if (submission.status && submission.status.id >= 3) {
+        results.push(submission);
+        break;
+      }
+
+      attempts++;
+    }
   }
 
-  return Object.values(results);
+  return results;
 };
 
 export const getLanguageName = (LanguageId) => {
