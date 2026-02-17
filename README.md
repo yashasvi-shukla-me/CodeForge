@@ -1,55 +1,103 @@
 ![CodeForge Preview](assets/CodeForge.png)
 
-## ⚖️ CodeForge
+## ⚖️ CodeForge – Distributed Coding Platform
 
-CodeForge is a full-stack coding practice and online judge platform inspired by LeetCode, where users can add, run, and solve programming problems with real-time code execution.
-It uses the Judge0 API to compile and run code securely across multiple languages.
+CodeForge is a full-stack distributed coding platform that enables users to solve programming problems with secure, containerized, multi-language code execution.
 
-### Features
+The system is designed with a separated frontend and backend architecture and integrates the Judge0 API for language-agnostic compilation and execution.
 
-- Add and manage programming problems
-- Multi-language code execution via Judge0
-- Real-time submission and verdict system
-- User authentication and profiles
-- Problem solving and practice interface
-- Frontend and backend separated architecture
+🔗 Live Demo: https://codeforge-theta.vercel.app/  
+📂 GitHub: https://github.com/yashasvi-shukla-me/CodeForge
 
-### Tech Stack
+---
 
-**Frontend**
-React,
-Tailwind CSS,
-Axios
+## Overview
 
-**Backend**
-Node.js,
-Express,
-MongoDB,
-Judge0 API,
-JWT Authentication
+CodeForge simulates the core workflow of an online coding evaluation platform:
 
-### Project Goal
+- Users authenticate and access problem sets
+- Code submissions are securely executed
+- Test cases are evaluated asynchronously
+- Verdicts are generated and persisted
+- Submission history and results are tracked
 
-To build a scalable and production-oriented online judge platform while learning full-stack system design and backend engineering.
-Setup
+The focus of this project is backend system design, secure execution, and scalable architecture.
 
-### Clone the repo
+---
 
-git clone https://github.com/<your-username>/CodeForge.git
+## ⚡️ Key Features
 
+- User authentication and profile management (JWT-based)
+- Problem creation, storage, and test case validation
+- Asynchronous code submission workflow
+- Multi-language execution via Judge0 API
+- Secure execution handling and verdict mapping
+- Submission history and result tracking
+- Clean, responsive frontend interface
+
+---
+
+## 🛠️ Architecture
+
+### Frontend
+
+- React
+- Tailwind CSS
+- Axios for API communication
+
+### Backend
+
+- Node.js
+- Express
+- MongoDB
+- JWT Authentication
+- Judge0 API integration
+
+The frontend and backend are fully decoupled and communicate via RESTful APIs.
+
+---
+
+## 🖥️ System Design Highlights
+
+- Separation of concerns between API layer and execution layer
+- Secure, language-agnostic execution handling
+- Error handling for compilation failures, runtime errors, and invalid submissions
+- Structured submission lifecycle management
+- Designed with scalability in mind for future queue-based execution
+
+---
+
+## Getting Started
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/yashasvi-shukla-me/CodeForge.git
 cd CodeForge
+```
 
-### Install dependencies
+### Install Dependencies
 
+```bash
 npm install
+```
 
-### Run backend
+### Run the Backend
 
+```bash
 npm run dev
+```
 
-Commit it:
-git add README.md
+## Purpose of the Project
 
-git commit -m "docs: add project README"
+CodeForge was built to explore distributed backend architecture, secure code execution workflows, and real-world system design patterns used in coding evaluation platforms.
 
-git push
+The project emphasizes clean API design, modular backend structure, and scalable system thinking.
+
+## Author
+
+Yashasvi Shukla (YASHASVI SHUKLA)
+
+M.Tech (Computer Science) Full-Stack & AI-focused Developer
+
+---
