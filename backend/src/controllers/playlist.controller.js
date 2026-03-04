@@ -1,12 +1,10 @@
-import { skip } from "../generated/prisma/runtime/library.js";
 import { db } from "../libs/db.js";
+import { sendError, getPublicMessage } from "../utils/errorFormatter.js";
 
 export const createPlaylist = async (req, res) => {
   try {
     const { name, description } = req.body;
     const userId = req.user.id;
-
-    console.log("creating playlist for user:", userId);
 
     const playlist = await db.playlist.create({
       data: {
@@ -43,8 +41,6 @@ export const getAllListDetails = async (req, res) => {
         },
       },
     });
-
-    console.log("fetching playlists for user:", req.user.id);
 
     res.status(200).json({
       success: true,
@@ -99,6 +95,16 @@ export const addProblemToPlaylist = async (req, res) => {
   const { problemIds } = req.body;
 
   try {
+    const playlist = await db.playlist.findFirst({
+      where: { id: playlistId, userId: req.user.id },
+    });
+    if (!playlist) {
+      return res.status(404).json({
+        success: false,
+        message: "Playlist not found",
+      });
+    }
+
     const result = await db.problemInPlaylist.createMany({
       data: problemIds.map((problemId) => ({
         playlistId,
@@ -112,12 +118,7 @@ export const addProblemToPlaylist = async (req, res) => {
       addedCount: result.count,
     });
   } catch (error) {
-    console.error("Add problem error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    sendError(res, 500, getPublicMessage(error));
   }
 };
 
@@ -125,10 +126,18 @@ export const deletePlaylist = async (req, res) => {
   const { playlistId } = req.params;
 
   try {
+    const playlist = await db.playlist.findFirst({
+      where: { id: playlistId, userId: req.user.id },
+    });
+    if (!playlist) {
+      return res.status(404).json({
+        success: false,
+        message: "Playlist not found",
+      });
+    }
+
     const deletedPlaylist = await db.playlist.delete({
-      where: {
-        id: playlistId,
-      },
+      where: { id: playlistId },
     });
     res.status(200).json({
       success: true,
@@ -142,6 +151,10 @@ export const deletePlaylist = async (req, res) => {
         message: "Playlist not found",
       });
     }
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
@@ -150,6 +163,16 @@ export const removeProblemFromPlaylist = async (req, res) => {
   const { problemIds } = req.body;
 
   try {
+    const playlist = await db.playlist.findFirst({
+      where: { id: playlistId, userId: req.user.id },
+    });
+    if (!playlist) {
+      return res.status(404).json({
+        success: false,
+        message: "Playlist not found",
+      });
+    }
+
     if (!Array.isArray(problemIds) || problemIds.length === 0) {
       return res.status(400).json({
         success: false,

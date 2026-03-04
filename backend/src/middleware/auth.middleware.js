@@ -34,7 +34,8 @@ export const authMiddleware = async (req, res, next) => {
       });
     }
 
-    req.user = user;
+    const { password: _p, ...safeUser } = user;
+    req.user = safeUser;
     next();
   } catch (error) {
     console.error("Auth Middleware Error:", error);

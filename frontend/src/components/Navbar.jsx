@@ -1,16 +1,21 @@
 import React from "react";
-import { User, Code, LogOut } from "lucide-react";
+import { User, Code, LogOut, LogIn, UserPlus } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
 import symbol from "../assets/symbol.png";
 
+const LANDING_BG = "#0a0e17";
+
 const Navbar = () => {
   const { authUser } = useAuthStore();
 
   return (
-    <nav className="w-full py-5 relative z-50">
-      <div className="flex w-full justify-between mx-auto max-w-4xl bg-black/15 shadow-lg shadow-neutral-600/5 backdrop-blur-lg border border-gray-200/10 p-4 rounded-2xl">
+    <nav
+      className="w-full py-5 relative z-50"
+      style={{ backgroundColor: LANDING_BG }}
+    >
+      <div className="flex w-full justify-between mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Logo Section */}
         <Link to="/" className="flex items-center gap-3 cursor-pointer">
           <img
@@ -23,7 +28,28 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* User Profile and Dropdown */}
+        {/* When not logged in: Login + Sign up */}
+        {!authUser && (
+          <div className="flex items-center gap-3">
+            <Link
+              to="/login"
+              className="btn btn-ghost gap-2 text-white/90 hover:text-white hover:bg-white/10"
+            >
+              <LogIn className="w-4 h-4" />
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              className="btn btn-primary gap-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              Sign up
+            </Link>
+          </div>
+        )}
+
+        {/* User Profile and Dropdown (when logged in) */}
+        {authUser && (
         <div className="flex items-center gap-8">
           <div className="dropdown dropdown-end">
             <label
@@ -87,6 +113,7 @@ const Navbar = () => {
             </ul>
           </div>
         </div>
+        )}
       </div>
     </nav>
   );

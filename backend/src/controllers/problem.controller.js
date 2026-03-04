@@ -1,5 +1,7 @@
 import { createSubmission } from "../libs/judge0.lib.js";
 import { db } from "../libs/db.js";
+import { sendError } from "../utils/errorFormatter.js";
+import { getPublicMessage } from "../utils/errorFormatter.js";
 
 export const createProblem = async (req, res) => {
   try {
@@ -55,12 +57,7 @@ export const createProblem = async (req, res) => {
       data: newProblem,
     });
   } catch (err) {
-    console.error("Error creating problem:", err);
-    res.status(500).json({
-      success: false,
-      message: "Error creating problem",
-      error: err.message,
-    });
+    sendError(res, 500, getPublicMessage(err));
   }
 };
 
@@ -82,12 +79,7 @@ export const getAllProblems = async (req, res) => {
       data: problems,
     });
   } catch (error) {
-    console.error("Error fetching problems:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching problems",
-      error: error.message,
-    });
+    sendError(res, 500, getPublicMessage(error));
   }
 };
 
@@ -112,14 +104,7 @@ export const getProblemById = async (req, res) => {
       data: problem,
     });
   } catch (error) {
-    console.log("ID from params:", req.params.id);
-
-    console.error("Error fetching problem:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching problem",
-      error: error.message,
-    });
+    sendError(res, 500, getPublicMessage(error));
   }
 };
 
@@ -177,12 +162,7 @@ export const updateProblem = async (req, res) => {
       data: updatedProblem,
     });
   } catch (err) {
-    console.error("Error updating problem:", err);
-    res.status(500).json({
-      success: false,
-      message: "Error updating problem",
-      error: err.message,
-    });
+    sendError(res, 500, getPublicMessage(err));
   }
 };
 
@@ -208,12 +188,7 @@ export const deleteProblem = async (req, res) => {
       message: "Problem deleted successfully",
     });
   } catch (error) {
-    console.error("Error deleting problem:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error deleting problem",
-      error: error.message,
-    });
+    sendError(res, 500, getPublicMessage(error));
   }
 };
 
@@ -241,12 +216,7 @@ export const getAllProblemsSolvedByUser = async (req, res) => {
       data: problems,
     });
   } catch (error) {
-    console.error("Error fetching problems solved by user:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching problems solved by user",
-      error: error.message,
-    });
+    sendError(res, 500, getPublicMessage(error));
   }
 };
 
@@ -268,10 +238,6 @@ export const runProblemCode = async (req, res) => {
       data: result,
     });
   } catch (err) {
-    console.error("Run Problem Error:", err.message);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
+    sendError(res, 500, getPublicMessage(err));
   }
 };

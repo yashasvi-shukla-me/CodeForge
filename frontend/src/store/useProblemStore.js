@@ -2,6 +2,12 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "react-hot-toast";
 
+function getErrorMessage(error) {
+  const msg = error?.response?.data?.message ?? error?.response?.data?.error;
+  if (typeof msg === "string") return msg;
+  return null;
+}
+
 export const useProblemStore = create((set) => ({
   problems: [],
   problem: null,
@@ -17,8 +23,7 @@ export const useProblemStore = create((set) => ({
 
       set({ problems: res.data.data });
     } catch (error) {
-      console.log("Error fetching problems:", error);
-      toast.error("Failed to fetch problems.");
+      toast.error(getErrorMessage(error) || "Failed to fetch problems.");
     } finally {
       set({ isProblemsLoading: false });
     }
@@ -33,8 +38,7 @@ export const useProblemStore = create((set) => ({
       set({ problem: res.data.data });
       toast.success(res.data.message || "Problem fetched successfully.");
     } catch (error) {
-      console.log("Error fetching problem:", error);
-      toast.error("Failed to fetch problem.");
+      toast.error(getErrorMessage(error) || "Failed to fetch problem.");
     } finally {
       set({ isProblemLoading: false });
     }
@@ -42,12 +46,11 @@ export const useProblemStore = create((set) => ({
 
   getSolvedProblemByUser: async () => {
     try {
-      const res = await axiosInstance.get("/problems/get-solved-problem");
+      const res = await axiosInstance.get("/problems/get-solved-problems");
 
-      set({ solvedProblems: res.data.problems });
+      set({ solvedProblems: res.data.data ?? res.data.problems ?? [] });
     } catch (error) {
-      console.log("Error fetching solved problems:", error);
-      toast.error("Failed to fetch solved problems.");
+      toast.error(getErrorMessage(error) || "Failed to fetch solved problems.");
     }
   },
 }));

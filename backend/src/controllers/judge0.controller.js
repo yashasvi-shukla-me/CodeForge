@@ -1,4 +1,6 @@
 import { createSubmission } from "../libs/judge0.lib.js";
+import { sendError } from "../utils/errorFormatter.js";
+import { getPublicMessage } from "../utils/errorFormatter.js";
 
 export const runCode = async (req, res) => {
   try {
@@ -18,11 +20,6 @@ export const runCode = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.error("Error running code:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Error executing code",
-      error: error.message,
-    });
+    sendError(res, 500, getPublicMessage(error));
   }
 };

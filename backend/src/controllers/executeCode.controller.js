@@ -1,8 +1,7 @@
-import { createSubmission } from "../libs/judge0.lib.js";
-
-// import { submitBatch } from "../libs/judge0.lib.js";
 import { runTestCasesSequentially } from "../libs/judge0.lib.js";
 import { db } from "../libs/db.js";
+import { sendError } from "../utils/errorFormatter.js";
+import { getPublicMessage } from "../utils/errorFormatter.js";
 
 export const executeCode = async (req, res) => {
   try {
@@ -60,6 +59,6 @@ export const executeCode = async (req, res) => {
 
     res.json({ success: true, data: formatted });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    sendError(res, 500, getPublicMessage(err));
   }
 };

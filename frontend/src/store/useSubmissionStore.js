@@ -2,6 +2,12 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
+function getErrorMessage(error) {
+  const msg = error?.response?.data?.message ?? error?.response?.data?.error;
+  if (typeof msg === "string") return msg;
+  return null;
+}
+
 export const useSubmissionStore = create((set, get) => ({
   isLoading: false,
   submissions: [],
@@ -18,8 +24,7 @@ export const useSubmissionStore = create((set, get) => ({
 
       set({ submissions: res.data.submissions || [] });
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to fetch submissions");
+      toast.error(getErrorMessage(error) || "Failed to fetch submissions");
     } finally {
       set({ isLoading: false });
     }
@@ -33,7 +38,7 @@ export const useSubmissionStore = create((set, get) => ({
       );
       set({ submissionCount: res.data.count });
     } catch (error) {
-      console.log(error);
+      toast.error(getErrorMessage(error) || "Failed to load submission count");
     }
   },
 
@@ -51,8 +56,7 @@ export const useSubmissionStore = create((set, get) => ({
 
       return res.data;
     } catch (error) {
-      console.log("Submit error:", error.response?.data);
-      toast.error("Submission failed");
+      toast.error(getErrorMessage(error) || "Submission failed");
       throw error;
     } finally {
       set({ isLoading: false });

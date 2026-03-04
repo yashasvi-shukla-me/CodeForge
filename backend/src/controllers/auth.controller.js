@@ -2,9 +2,18 @@ import bcrypt from "bcryptjs";
 import { db } from "../libs/db.js";
 import { UserRole } from "../generated/prisma/index.js";
 import jwt from "jsonwebtoken";
+import { sendError } from "../utils/errorFormatter.js";
+import { getPublicMessage } from "../utils/errorFormatter.js";
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+/** Omit password from user object before sending to client */
+function sanitizeUser(user) {
+  if (!user) return user;
+  const { password: _p, ...safe } = user;
+  return safe;
+}
 
 export const register = async (req, res) => {
   const { email, password, name } = req.body;
@@ -33,11 +42,10 @@ export const register = async (req, res) => {
       success: true,
       message: "User registered successfully",
       token,
-      user: newUser,
+      user: sanitizeUser(newUser),
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Error creating user" });
+    sendError(res, 500, getPublicMessage(error));
   }
 };
 
@@ -63,11 +71,10 @@ export const login = async (req, res) => {
       success: true,
       message: "User logged in successfully",
       token,
-      user,
+      user: sanitizeUser(user),
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Error logging in user" });
+    sendError(res, 500, getPublicMessage(error));
   }
 };
 
@@ -78,6 +85,6 @@ export const logout = async (req, res) => {
 export const check = async (req, res) => {
   res.json({
     success: true,
-    user: req.user,
+    user: sanitizeUser(req.user),
   });
 };

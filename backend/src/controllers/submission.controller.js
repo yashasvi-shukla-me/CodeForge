@@ -1,20 +1,16 @@
 import { db } from "../libs/db.js";
-// import { submitBatch } from "../libs/judge0.lib.js";
 import { getLanguageName } from "../libs/judge0.lib.js";
 import { runTestCasesSequentially } from "../libs/judge0.lib.js";
+import { sendError } from "../utils/errorFormatter.js";
+import { getPublicMessage } from "../utils/errorFormatter.js";
 
 export const getAllSubmissions = async (req, res) => {
   try {
     const userId = req.user.id;
 
     const submissions = await db.submission.findMany({
-      where: {
-        userId,
-        problemId, // include only if needed
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+      where: { userId },
+      orderBy: { createdAt: "desc" },
     });
 
     return res.status(200).json({
@@ -23,11 +19,7 @@ export const getAllSubmissions = async (req, res) => {
       submissions,
     });
   } catch (error) {
-    console.error("Error fetching submissions:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
+    return sendError(res, 500, getPublicMessage(error));
   }
 };
 
@@ -37,13 +29,8 @@ export const getSubmissionForProblem = async (req, res) => {
     const problemId = req.params.problemId;
 
     const submissions = await db.submission.findMany({
-      where: {
-        userId,
-        problemId, // include only if needed
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+      where: { userId, problemId },
+      orderBy: { createdAt: "desc" },
     });
 
     res.status(200).json({
@@ -52,18 +39,12 @@ export const getSubmissionForProblem = async (req, res) => {
       submissions,
     });
   } catch (error) {
-    console.error("Error fetching submissions for problem:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
+    return sendError(res, 500, getPublicMessage(error));
   }
 };
 
 export const getAllTheSubmissionsForProblem = async (req, res) => {
   try {
-    console.log("PARAMS:", req.params);
-    console.log("USER:", req.user);
     const { problemId } = req.params;
 
     if (!problemId) {
@@ -82,8 +63,7 @@ export const getAllTheSubmissionsForProblem = async (req, res) => {
       count,
     });
   } catch (error) {
-    console.error("Fetch Submissions Error", error);
-    return res.status(500).json({ success: false, message: error.message });
+    return sendError(res, 500, getPublicMessage(error));
   }
 };
 
@@ -123,6 +103,11 @@ export const submitSolution = async (req, res) => {
       passed: (r.stdout ?? "").trim() === String(allCases[i].output).trim(),
       expected: allCases[i].output,
       stdout: (r.stdout ?? "").trim(),
+      stderr: r.stderr ?? null,
+      status: r.status?.description ?? String(r.status?.id ?? "Unknown"),
+      memory: r.memory != null ? String(r.memory) : null,
+      time: r.time != null ? String(r.time) : null,
+      compileOutput: r.compile_output ?? null,
     }));
 
     const allPassed = testCases.every((t) => t.passed);
@@ -143,21 +128,40 @@ export const submitSolution = async (req, res) => {
         problemId,
         sourceCode: source_code,
         language: getLanguageName(language_id),
-
         status: allPassed ? "Accepted" : "Wrong Answer",
         memory: String(avgMemory),
         time: String(avgTime),
+        testCases: {
+          create: testCases.map((tc, i) => ({
+            testCase: i + 1,
+            passed: tc.passed,
+            expected: tc.expected,
+            stdout: tc.stdout ?? null,
+            stderr: tc.stderr ?? null,
+            status: tc.status,
+            memory: tc.memory,
+            time: tc.time,
+            compileOutput: tc.compileOutput,
+          })),
+        },
       },
     });
 
-    console.log("Saved:", record.id);
+    if (allPassed) {
+      await db.problemSolved.upsert({
+        where: {
+          userId_problemId: { userId, problemId },
+        },
+        create: { userId, problemId },
+        update: {},
+      });
+    }
 
     return res.status(200).json({
       success: true,
       data: record,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ success: false, message: err.message });
+    return sendError(res, 500, getPublicMessage(err));
   }
 };

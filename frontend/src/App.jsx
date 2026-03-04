@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import HomePage from "./page/HomePage.jsx";
+import LandingPage from "./page/LandingPage.jsx";
 import LoginPage from "./page/LoginPage.jsx";
 import SignUpPage from "./page/SignUpPage.jsx";
 import { useAuthStore } from "./store/useAuthStore.js";
@@ -34,7 +35,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route
             index
-            element={authUser ? <HomePage /> : <Navigate to="/login" />}
+            element={authUser ? <HomePage /> : <LandingPage />}
           />
         </Route>
 
