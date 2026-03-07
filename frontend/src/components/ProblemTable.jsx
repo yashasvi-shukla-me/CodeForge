@@ -79,7 +79,7 @@ const ProblemTable = ({ problems }) => {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto mt-10">
+    <div className="w-full max-w-[1300px] mx-auto mt-10">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Problems</h2>
         <button
@@ -105,7 +105,7 @@ const ProblemTable = ({ problems }) => {
           value={difficulty}
           onChange={(e) => setDifficulty(e.target.value)}
         >
-          <option value="ALL">All Difficulties</option>
+          <option value="All">All Difficulties</option>
           {difficulties.map((diff) => (
             <option key={diff} value={diff}>
               {diff.charAt(0).toUpperCase() + diff.slice(1).toLowerCase()}
@@ -118,7 +118,7 @@ const ProblemTable = ({ problems }) => {
           value={selectedTag}
           onChange={(e) => setSelectedTag(e.target.value)}
         >
-          <option value="ALL">All Tags</option>
+          <option value="All">All Tags</option>
           {allTags.map((tag) => (
             <option key={tag} value={tag}>
               {tag}
@@ -127,8 +127,8 @@ const ProblemTable = ({ problems }) => {
         </select>
       </div>
 
-      <div className="overflow-x-auto rounded-xl shadow-md">
-        <table className="table table-zebra table-lg bg-base-200 text-base-content">
+      <div className="rounded-xl shadow-md overflow-hidden">
+        <table className="table table-zebra table-lg bg-base-200 text-base-content w-full">
           <thead className="bg-base-300">
             <tr>
               <th>Solved</th>
@@ -167,7 +167,7 @@ const ProblemTable = ({ problems }) => {
                         {(problem.tags || []).map((tag, idx) => (
                           <span
                             key={idx}
-                            className="badge badge-outline badge-warning text-xs font-bold"
+                            className="badge badge-ghost text-xs font-medium bg-base-300/80"
                           >
                             {tag}
                           </span>
@@ -176,12 +176,12 @@ const ProblemTable = ({ problems }) => {
                     </td>
                     <td>
                       <span
-                        className={`badge font-semibold text-xs text-white ${
+                        className={`badge font-semibold text-xs border-0 ${
                           problem.difficulty === "EASY"
-                            ? "badge-success"
+                            ? "bg-emerald-500 text-white"
                             : problem.difficulty === "MEDIUM"
-                            ? "badge-warning"
-                            : "badge-error"
+                            ? "bg-blue-500 text-white"
+                            : "bg-amber-500 text-white"
                         }`}
                       >
                         {problem.difficulty}
@@ -193,7 +193,7 @@ const ProblemTable = ({ problems }) => {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleDelete(problem.id)}
-                              className="btn btn-sm btn-error"
+                              className="btn btn-sm bg-red-400 hover:bg-red-500 text-white border-0"
                             >
                               {isDeletingProblem ? (
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -201,8 +201,8 @@ const ProblemTable = ({ problems }) => {
                                 <TrashIcon className="w-4 h-4 text-white" />
                               )}
                             </button>
-                            <button disabled className="btn btn-sm btn-warning">
-                              <PencilIcon className="w-4 h-4 text-white" />
+                            <button disabled className="btn btn-sm btn-ghost border border-base-content/20">
+                              <PencilIcon className="w-4 h-4" />
                             </button>
                           </div>
                         )}

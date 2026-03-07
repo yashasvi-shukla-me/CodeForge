@@ -34,8 +34,9 @@ export default function LandingPage() {
         {/* Hero - composed block, centered */}
         <section className="flex-shrink-0 pt-4 sm:pt-8 flex flex-col items-center">
           <div className="max-w-xl mx-auto text-center space-y-6">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-              CodeForge
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+              <span className="text-white">Code</span>
+              <span className="text-primary">Forge</span>
             </h1>
             <p className="text-lg sm:text-xl text-white/90 font-medium leading-relaxed">
               Run code. Solve problems. Get interview-ready.

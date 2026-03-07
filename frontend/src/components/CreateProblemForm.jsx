@@ -540,16 +540,20 @@ const CreateProblemForm = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const getErrorMessage = (err) => {
+    const msg = err?.response?.data?.message ?? err?.response?.data?.error;
+    return typeof msg === "string" ? msg : null;
+  };
+
   const onSubmit = async (value) => {
     try {
       setIsLoading(true);
       const res = await axiosInstance.post("/problems/create-problem", value);
-      console.log(res.data);
       toast.success(res.data.message || "Problem created successfully!");
       navigation("/");
     } catch (error) {
       console.error(error);
-      toast.error("Error creating problem. Please try again.");
+      toast.error(getErrorMessage(error) || "Error creating problem. Please try again.");
     } finally {
       setIsLoading(false);
     }

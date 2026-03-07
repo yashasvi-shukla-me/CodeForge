@@ -5,114 +5,88 @@ import { Link } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
 import symbol from "../assets/symbol.png";
 
-const LANDING_BG = "#0a0e17";
-
 const Navbar = () => {
   const { authUser } = useAuthStore();
 
   return (
-    <nav
-      className="w-full py-5 relative z-50"
-      style={{ backgroundColor: LANDING_BG }}
-    >
-      <div className="flex w-full justify-between mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* Logo Section */}
-        <Link to="/" className="flex items-center gap-3 cursor-pointer">
+    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-base-100 shadow-sm">
+      <div className="mx-auto flex h-16 w-full max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="flex items-center gap-2.5 rounded-lg transition-opacity hover:opacity-90"
+        >
           <img
             src={symbol}
-            alt="CodeForge Symbol"
-            className="h-18 w-18 bg-primary/20 text-primary border-none px-2 py-2 rounded-full"
+            alt="CodeForge"
+            className="h-9 w-9 rounded-lg bg-primary/10 p-1"
           />
-          <span className="text-lg md:text-2xl font-bold tracking-tight text-white hidden md:block">
-            CodeForge
+          <span className="text-xl font-bold tracking-tight text-base-content">
+            Code<span className="text-primary">Forge</span>
           </span>
         </Link>
 
-        {/* When not logged in: Login + Sign up */}
+        {/* Not logged in */}
         {!authUser && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link
               to="/login"
-              className="btn btn-ghost gap-2 text-white/90 hover:text-white hover:bg-white/10"
+              className="btn btn-ghost btn-sm gap-1.5 text-base-content/80 hover:text-base-content"
             >
-              <LogIn className="w-4 h-4" />
+              <LogIn className="h-4 w-4" />
               Login
             </Link>
-            <Link
-              to="/signup"
-              className="btn btn-primary gap-2"
-            >
-              <UserPlus className="w-4 h-4" />
+            <Link to="/signup" className="btn btn-primary btn-sm gap-1.5">
+              <UserPlus className="h-4 w-4" />
               Sign up
             </Link>
           </div>
         )}
 
-        {/* User Profile and Dropdown (when logged in) */}
+        {/* Logged in: user menu */}
         {authUser && (
-        <div className="flex items-center gap-8">
           <div className="dropdown dropdown-end">
             <label
               tabIndex={0}
-              className="btn btn-ghost btn-circle avatar flex flex-row "
+              className="btn btn-ghost btn-circle avatar cursor-pointer"
             >
-              <div className="w-10 rounded-full ">
+              <div className="h-9 w-9 rounded-full ring-2 ring-primary/20">
                 <img
                   src="https://api.dicebear.com/9.x/bottts/svg?seed=Andrea"
-                  alt="avatar"
-                  className="object-cover"
+                  alt="Profile"
+                  className="object-cover rounded-full"
                 />
-
-                {/* <img
-                  src={
-                    authUser?.image ||
-                    "https://api.dicebear.com/7.x/personas/svg"
-                  }
-                  alt="User Avatar"
-                  className="object-cover"
-                /> */}
               </div>
             </label>
             <ul
               tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-1 p-2 shadow bg-base-100 rounded-box w-52 space-y-3"
+              className="menu dropdown-content mt-3 w-56 rounded-xl border border-base-300 bg-base-100 p-2 shadow-xl"
             >
-              {/* Admin Option */}
-
-              {/* Common Options */}
-              <li>
-                <p className="text-base font-semibold">{authUser?.name}</p>
-                <hr className="border-gray-200/10" />
+              <li className="menu-title px-3 py-2">
+                <span className="font-semibold text-base-content">{authUser?.name}</span>
               </li>
               <li>
-                <Link
-                  to="/profile"
-                  className="hover:bg-primary hover:text-white text-base font-semibold"
-                >
-                  <User className="w-4 h-4 mr-2" />
+                <Link to="/profile" className="gap-2 rounded-lg">
+                  <User className="h-4 w-4" />
                   My Profile
                 </Link>
               </li>
               {authUser?.role === "ADMIN" && (
                 <li>
-                  <Link
-                    to="/add-problem"
-                    className="hover:bg-primary hover:text-white text-base font-semibold"
-                  >
-                    <Code className="w-4 h-4 mr-1" />
+                  <Link to="/add-problem" className="gap-2 rounded-lg">
+                    <Code className="h-4 w-4" />
                     Add Problem
                   </Link>
                 </li>
               )}
               <li>
-                <LogoutButton className="hover:bg-primary hover:text-white">
-                  <LogOut className="w-4 h-4 mr-2" />
+                <LogoutButton className="gap-2 rounded-lg text-error hover:bg-error/10 hover:text-error">
+                  <LogOut className="h-4 w-4" />
                   Logout
                 </LogoutButton>
               </li>
             </ul>
           </div>
-        </div>
         )}
       </div>
     </nav>

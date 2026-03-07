@@ -177,8 +177,14 @@ const ProblemPage = () => {
 
             {problem.constraints && (
               <>
-                <h3>Constraints</h3>
-                <pre>{problem.constraints}</pre>
+                <h3 className="font-semibold mt-4">Constraints</h3>
+                <pre className="bg-base-200 p-3 rounded-lg text-sm whitespace-pre-wrap">{problem.constraints}</pre>
+              </>
+            )}
+            {problem.editorial && (
+              <>
+                <h3 className="font-semibold mt-4">Editorial</h3>
+                <p className="whitespace-pre-wrap text-base-content/90">{problem.editorial}</p>
               </>
             )}
           </div>

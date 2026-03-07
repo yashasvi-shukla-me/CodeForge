@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "../lib/axios.js";
-import { Mail, Shield, Calendar, Folder, ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
+import { Mail, Shield, Calendar, ArrowLeft } from "lucide-react";
 
 const ProfilePage = () => {
   const { authUser } = useAuthStore();
@@ -61,13 +62,13 @@ const ProfilePage = () => {
 
           <div className="flex gap-3">
             <button
-              onClick={() => navigate("/profile/edit")}
+              onClick={() => toast("Edit profile — coming soon")}
               className="btn btn-primary"
             >
               Edit
             </button>
             <button
-              onClick={() => navigate("/change-password")}
+              onClick={() => toast("Change password — coming soon")}
               className="btn btn-outline"
             >
               Password
