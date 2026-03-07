@@ -17,9 +17,22 @@ export const executeCode = async (req, res) => {
         .json({ success: false, message: "Problem not found" });
     }
 
-    const allCases = Array.isArray(problem.testcases)
+    let allCases = Array.isArray(problem.testcases)
       ? problem.testcases
       : JSON.parse(problem.testcases || "[]");
+
+    if (!allCases.length) {
+      return res.status(400).json({
+        success: false,
+        message: "Problem has no test cases",
+      });
+    }
+
+    // Normalize: ensure each test case has input and output (for user-created problems)
+    allCases = allCases.map((tc) => ({
+      input: tc && typeof tc.input !== "undefined" ? String(tc.input) : "",
+      output: tc && typeof tc.output !== "undefined" ? String(tc.output) : "",
+    }));
 
     const sampleCases = allCases.slice(0, 3);
 

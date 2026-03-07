@@ -33,12 +33,19 @@ app.use(cookieParser());
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
   : [];
+
+const isLocalhost = (origin) =>
+  !origin ||
+  origin.startsWith("http://localhost:") ||
+  origin.startsWith("http://127.0.0.1:");
+
 app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production" && allowedOrigins.length > 0
         ? (origin, cb) => {
-            if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+            if (isLocalhost(origin) || allowedOrigins.includes(origin))
+              return cb(null, true);
             return cb(null, false);
           }
         : true,
